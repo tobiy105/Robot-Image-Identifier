@@ -5,6 +5,7 @@ import numpy as np
 import rospy
 import sys
 
+from identify_circles import colourIdentifier
 from geometry_msgs.msg import Twist, Vector3
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
@@ -19,8 +20,8 @@ class cameraFeed():
         
         
         # Initialise any flags that signal that an coloured circle has been detected (default to false)
-        self.red_circle_detected = 0
-        self.green_circle_detected = 0
+        # self.red_circle_detected = 0
+        # self.green_circle_detected = 0
         
         # Initialise the value you wish to use for sensitivity in the colour detection (10 should be enough)
         self.sensitivity = 10
@@ -32,6 +33,9 @@ class cameraFeed():
         self.Pub = rospy.Publisher('camera/rgb/image_raw', Image)
         self.sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.callback)
 
+        #indentify_circles
+        self.cI = colourIdentifier()
+
     def callback(self, data):
         # Convert the received image into a opencv image
         # But remember that you should always wrap a call to this conversion method in an exception handler
@@ -42,15 +46,15 @@ class cameraFeed():
             print("Error Converting cv image: {}".format(e.message))
             
         
-        if (not self.red_circle_detected and not self.green_circle_detected):
+        if (not self.cI.red_circle_detected and not self.cI.green_circle_detected):
             desired_velocity = Twist()
             desired_velocity.angular.z = 0.4 # Forward with 0.4 radians/sec.
             self.pub.publish(desired_velocity)
             self.rate.sleep()
-            time = time + 1
+            
           
 
-        if (not self.red_circle_detected | not self.green_circle_detected):
+        if (not self.cI.red_circle_detected | not self.cI.green_circle_detected):
             desired_velocity = Twist()
             desired_velocity.angular.z = 0.0 # Forward with 0.0 radians/sec.
             self.pub.publish(desired_velocity)
@@ -67,7 +71,7 @@ def main(args):
     # Instantiate your class
     # And rospy.init the entire node
     rospy.init_node('image_converter', anonymous = True)
-    cI = cameraFeed()
+    cf = cameraFeed()
     # Ensure that the node continues running with rospy.spin()
     # You may need to wrap it in an exception handler in case of KeyboardInterrupts
     # Remember to destroy all image windows before closing node

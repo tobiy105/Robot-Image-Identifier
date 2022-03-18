@@ -17,9 +17,9 @@ class colourIdentifier():
         # We covered which topic receives messages that move the robot in the 2nd Lab Session
         self.velocity_publisher = rospy.Publisher('mobile_base/commands/velocity', Twist)
 
-        # Initialise any flags that signal a colour has been detected (default to false)
-        self.detected_green = 0
-        self.detected_red = 0
+        # Initialise any flags that signal that an coloured circle has been detected (default to false)
+        self.red_circle_detected = 0
+        self.green_circle_detected = 0
 
         # Initialise the value you wish to use for sensitivity in the colour detection (10 should be enough)
         self.sensitivity = 10
@@ -92,7 +92,7 @@ class colourIdentifier():
             if cv2.contourArea(self.green) > 7000: #<What do you think is a suitable area?>:
                 print ("Green detected and circled in blue")
                 # Alter the value of the flag
-                self.detected_green = 1
+                self.green_circle_detected = 1
 
                 # draw a circle on the contour you're identifying
                 #minEnclosingCircle can find the centre and radius of the largest contour(result from max())
@@ -115,7 +115,7 @@ class colourIdentifier():
             if cv2.contourArea(self.red) > 3000: #<What do you think is a suitable area?>:
                 print ("Red detected and circled in blue")
                 # Alter the value of the flag
-                self.detected_red = 1
+                self.red_circle_detected = 1
 
                 (w, h), radius = cv2.minEnclosingCircle(self.red)
                 center = (int(w),int(h))
@@ -124,7 +124,7 @@ class colourIdentifier():
 
         #Check if a flag has been set = green object detected - follow the colour object
 
-        if self.detected_green == 1 and self.detected_red == 0 and cv2.contourArea(self.green) > 3000 :
+        if self.green_circle_detected == 1 and self.red_circle_detected == 0 and cv2.contourArea(self.green) > 3000 :
 
             print ("Moving towards green")
             #desired_velocity = Twist()
@@ -135,7 +135,7 @@ class colourIdentifier():
 
         # Be sure to do this for the other colour as well
         #Setting the flag to detect red, and stop the turtlebot from moving if red is detected
-        elif self.detectedGreen == 1 and self.detectedRed == 1:
+        elif self.green_circle_detected == 1 and self.red_circle_detected  == 1:
                     # stop if red is detected
                     print ("Red detected, stopping")
                     #desired_velocity = Twist()
