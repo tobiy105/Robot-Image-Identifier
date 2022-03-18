@@ -8,7 +8,7 @@ import sys
 from geometry_msgs.msg import Twist, Vector3
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
-time = 0
+
 class cameraFeed():
 
     def __init__(self):
@@ -19,7 +19,8 @@ class cameraFeed():
         
         
         # Initialise any flags that signal that an coloured circle has been detected (default to false)
-        self.circle_decetcted = 0
+        self.red_circle_detected = 0
+        self.green_circle_detected = 0
         
         # Initialise the value you wish to use for sensitivity in the colour detection (10 should be enough)
         self.sensitivity = 10
@@ -40,8 +41,8 @@ class cameraFeed():
         except CvBridgeError as e :
             print("Error Converting cv image: {}".format(e.message))
             
-        global time
-        if (self.circle_decetcted != 1 and time < 101):
+        
+        if (not self.red_circle_detected and not self.green_circle_detected):
             desired_velocity = Twist()
             desired_velocity.angular.z = 0.4 # Forward with 0.4 radians/sec.
             self.pub.publish(desired_velocity)
@@ -49,7 +50,7 @@ class cameraFeed():
             time = time + 1
           
 
-        if (time == 100):
+        if (not self.red_circle_detected | not self.green_circle_detected):
             desired_velocity = Twist()
             desired_velocity.angular.z = 0.0 # Forward with 0.0 radians/sec.
             self.pub.publish(desired_velocity)
