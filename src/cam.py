@@ -47,7 +47,6 @@ class cameraFeed():
             desired_velocity.angular.z = 0.4 # Forward with 0.4 radians/sec.
             self.pub.publish(desired_velocity)
             self.rate.sleep()
-            time = time + 1
           
 
         if (not self.red_circle_detected | not self.green_circle_detected):
