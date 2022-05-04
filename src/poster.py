@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 import rospy
 import sys
+import os
 
 from geometry_msgs.msg import Twist, Vector3
 from sensor_msgs.msg import Image
@@ -85,16 +86,29 @@ class characterIdentifier():
                 cv2.rectangle(img_mustard,(x,y),(x+w, y+h),(0,0,255),2)
                 self.mustard_flag = 1
 
-        file = open("~/catkin_ws/src/group_project/src/cluedo_character.txt", "w")
+        cv2.namedWindow('camera_Feed')
+        cv2.imshow('camera_Feed', cv_image)
+        cv2.waitKey(3)
+
+        file = open("cluedo_character.txt", "w")
         if (self.scarlett_flag == 1):
+            cv2.imwrite('cluedo_character.png', cv_image)
             file.write("Miss Scarlett")
+            print("Saved files to current working directory!")
         elif (self.peacock_flag == 1):
+            cv2.imwrite('cluedo_character.png', cv_image)
             file.write("Mrs Peacock")
+            print("Saved files to current working directory!")
         elif (self.mustard_flag == 1):
+            cv2.imwrite('cluedo_character.png', cv_image)
             file.write("Colonel Mustard")
+            print("Saved files to current working directory!")
         elif (self.plum_flag == 1):
+            cv2.imwrite('cluedo_character.png', cv_image)
             file.write("Professor Plum")
+            print("Saved files to current working directory!")
         file.close()
+
 
 
 def main(args):
@@ -104,6 +118,8 @@ def main(args):
         rospy.spin()
     except KeyboardInterrupts:
         pass
+
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     main(sys.argv)
