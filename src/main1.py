@@ -43,25 +43,24 @@ def rotate(coord,n, thetas):
     y = coord[1]
     coordinate = {'x': x, 'y': y}
     quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : np.sin(theta/2.0), 'r4' : np.cos(theta/2.0)} 
-    print("straight")
     navigator.move(coordinate, quaternion)
 
 
     for i in range(n):
-        print(i)
         if i < n/2:
             theta = theta + (math.pi*2)/(2*n)
         else:
             temp = temp - (math.pi*2)/(2*n)
             theta = temp
 
-        print("theta = ", theta)
+        
         quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : np.sin(theta/2.0), 'r4' : np.cos(theta/2.0)} 
         navigator.move(coordinate, quaternion)
 
-        rospy.sleep(0.5)
+        rospy.sleep(0.1)
         test = characterIdentifier()
         rospy.sleep(1)
+        print("test = ", test.scarlett_flag)
         if test.found != 0:
             return 1
         #theta = theta + (math.pi*2)/n
@@ -80,7 +79,7 @@ def search(coord, thetas):
     #rospy.init_node('Walker', anonymous=True)
     rate = rospy.Rate(10)
     desired_velocity = Twist()
-    desired_velocity.linear.x = 0.5
+    desired_velocity.linear.x = 1
     while bump == False:
         pub.publish(desired_velocity)
         listen()
@@ -102,7 +101,9 @@ if __name__ == '__main__':
 
 
     GreenFlag = False
-    CluedoFlag = False
+    GreenFlag2 = False
+    RedFlag = False
+    RedFlag2 = False
     room = -1
     try:
         rospy.init_node('navigation', anonymous = True)
@@ -117,69 +118,66 @@ if __name__ == '__main__':
     
 
         keys = data.keys()
-        
-        coord = 0
-        for key in range(len(keys)):
 
-            if key == 1 and not GreenFlag:
-                continue
-            if GreenFlag and CluedoFlag:
-                break  
+        room1e = data[keys[0]]
+        room2e = data[keys[2]]
+        room1c = data[keys[1]]
+        room2c = data[keys[3]]
+        centerCoord = room1c
 
-            coord = data[keys[key]]
-            x = coord[0]
-            y = coord[1]
-            centerCoord = coord
+
+        x = room1e[0]
+        y = room1e[1]
+        theta = 0
+        coordinate = {'x': x, 'y': y}
+        quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : np.sin(theta/2.0), 'r4' : np.cos(theta/2.0)}
+        navigator.move(coordinate, quaternion)
+
+        start = time.time()
+        while True:
+            current = time.time()
+            elapsed = current - start
+            spin()
+            circleI = colourIdentifier()
+            rospy.sleep(1)
+            if circleI.green_circle_detected == 1:
+                GreenFlag = 1
+                break
+            if elapsed > 30:
+                break
+        if(GreenFlag):
+            x = room1c[0]
+            y = room1c[1]
+            print(x)
+            print(y)
             theta = 0
             coordinate = {'x': x, 'y': y}
-            quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : np.sin(theta/2.0), 'r4' : np.cos(theta/2.0)}     
+            quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : np.sin(theta/2.0), 'r4' : np.cos(theta/2.0)}
+            navigator.move(coordinate, quaternion)
+            centerCoord = room1c
+        else:
+            x = room2c[0]
+            y = room2c[1]
+            theta = 0
+            coordinate = {'x': x, 'y': y}
+            quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : np.sin(theta/2.0), 'r4' : np.cos(theta/2.0)}
+            navigator.move(coordinate, quaternion)
+            centerCoord = room2c
+    
 
-            rospy.loginfo("Go to (%s, %s)", coordinate['x'], coordinate['y'])
-            success = navigator.move(coordinate, quaternion)
-
-            if success:
-                rospy.loginfo("Reached Coordinates")
-            else:
-                rospy.loginfo("Failed to Reach Coordinates")
-
-            rospy.sleep(0.1)
-
-            
-
-            if key == 0:
-                GreenFlag = True
-
-            if key == 1: # switch between 1 and 3 for differnet rooms
-                CluedoFlag = True
-        
-
-       # quaternion = {'r1' : 0, 'r2' : 0, 'r3' : 1, 'r4' : 1 } #np.cos(theta)+np.sin(theta)*1
-        #navigator.move(coordinate, quaternion)
-
-        #rospy.sleep(3)
-
-        #quaternion = {'r1' : 0, 'r2' : 0, 'r3' : 1, 'r4' : 1.195 } #np.cos(theta)+np.sin(theta)*1
-        #navigator.move(coordinate, quaternion)
-        
-
-        x = 0.0
-        print(math.pi)
+        x = 0.0       
         for i in range(9):
             if i == 8:
                 break
-            print("search")
             temp = x
             x = search(centerCoord, x)
             navigator.currentPos()
             coord = [navigator.posx, navigator.posy]
-            print("rotate")
             t = rotate(coord, 4, temp)
-            print("return")
             if t == 1:
                 print("HERE BITCH")
                 break
             navigator.move(coordinate, quaternion)
-    
 
     except rospy.ROSInterruptException:
         rospy.loginfo("Ctrl-C Found - Quitting")

@@ -50,7 +50,7 @@ class colourIdentifier():
 
         #red 0 10, 220, 199
         hsv_red_lower = np.array([0, 100, 20])
-        hsv_red_upper = np.array([5 , 255, 255])
+        hsv_red_upper = np.array([0 , 255, 255])
 
         # Convert the rgb image into a hsv image
         hsv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
@@ -100,14 +100,28 @@ class colourIdentifier():
             
         
         if len(contours2) > 0:
-            self.red_circle_detected = 1
+            #self.red_circle_detected = 1
             # Loop over the contours
             # There are a few different methods for identifying which contour is the biggest:
             # Loop through the list and keep track of which contour is biggest or
             # Use the max() method to find the largest contour
+            #self.red = max(contours2, key = cv2.contourArea)
             self.red = max(contours2, key = cv2.contourArea)
+            M = cv2.moments(self.red)
+
+            if M["m00"] != 0:
+                cx, cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
+            else:
+                cx,cy = 0,0
+
+
+            if cv2.contourArea(self.red) > 100: #<What do you think is a suitable area?>:#
+                print("Red")
+                 # Alter the value of the flag
+                (cx, cy), radius = cv2.minEnclosingCircle(self.red)
+                radius = int(radius)
+                cv2.circle(mask_color_red,(int(cx),int(cy)),radius,(255, 0, 0),2)
             
-        
     #Show the resultant images you have created. You can show all of them or just the end result if you wish to.
 
 # Create a node of your class in the main and ensure it stays up and running
