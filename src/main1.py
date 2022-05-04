@@ -93,7 +93,7 @@ def search(coord, thetas):
 
     #rospy.sleep(1)
 
-    theta = theta + (math.pi*2)/8
+    theta = theta + (math.pi*2)/6
 
     return theta
 
@@ -166,17 +166,14 @@ if __name__ == '__main__':
     
 
         x = 0.0       
-        for i in range(9):
-            if i == 8:
+        for i in range(7):
+            if i == 7:
                 break
             temp = x
             x = search(centerCoord, x)
             navigator.currentPos()
             coord = [navigator.posx, navigator.posy]
             t = rotate(coord, 4, temp)
-            if t == 1:
-                print("HERE BITCH")
-                break
             navigator.move(coordinate, quaternion)
 
     except rospy.ROSInterruptException:
