@@ -5,13 +5,14 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 import actionlib
 from actionlib_msgs.msg import *
 from geometry_msgs.msg import Pose, Point, Quaternion
-
+from nav_msgs.msg import Odometry
 
 
 class Move():
 
     def __init__(self):
         self.goal_sent = False
+       
 
         rospy.on_shutdown(self.close)
 
@@ -59,6 +60,29 @@ class Move():
 
         self.goal_sent = False
         return result
+
+    def callback(self, msg):
+        
+        self.posx = msg.pose.pose.position.x
+        self.posy = msg.pose.pose.position.y
+        
+
+    def callback2(self, msg):
+        self.quatx = msg.pose.pose.orientation.x
+        self.quaty = msg.pose.pose.orientation.y
+        self.quatz = msg.pose.pose.orientation.z
+        self.quatw = msg.pose.pose.orientation.w
+    
+    def currentPos(self):
+        odom_sub = rospy.Subscriber('/odom', Odometry, self.callback)
+        rospy.sleep(0.5)
+
+    
+    def currentQuat(self):
+        odom_sub2 = rospy.Subscriber('/odom', Odometry, self.callback2)
+        rospy.sleep(0.5)
+
+        #rospy.sleep(3)
 
     def close(self):
         if self.goal_sent:

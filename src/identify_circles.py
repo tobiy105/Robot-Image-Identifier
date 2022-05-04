@@ -15,7 +15,6 @@ class colourIdentifier():
     def __init__(self):
         # Initialise a publisher to publish messages to the robot base
         # We covered which topic receives messages that move the robot in the 2nd Lab Session
-        self.velocity_publisher = rospy.Publisher('mobile_base/commands/velocity', Twist)
 
         # Initialise any flags that signal that an coloured circle has been detected (default to false)
         self.red_circle_detected = 0
@@ -25,8 +24,6 @@ class colourIdentifier():
         self.sensitivity = 10
 
         # Initialise some standard movement messages such as a simple move forward and a message with all zeroes (stop)
-        self.desired_velocity = Twist()
-        self.desired_velocity.linear.x = 0.0 #linear velocity
 
         # Remember to initialise a CvBridge() and set up a subscriber to the image topic you wish to use
         # We covered which topic to subscribe to should you wish to receive image data
@@ -48,12 +45,12 @@ class colourIdentifier():
         #hue value = 0 to 179
 
         #green
-        hsv_green_lower = np.array([60 - self.sensitivity, 100, 100])
-        hsv_green_upper = np.array([60 + self.sensitivity, 255, 255])
+        hsv_green_lower = np.array([64, 100, 20])
+        hsv_green_upper = np.array([84 , 255, 255])
 
-        #red
-        hsv_red_lower = np.array([0, 100, 100])
-        hsv_red_upper = np.array([20, 255, 255])
+        #red 0 10, 220, 199
+        hsv_red_lower = np.array([0, 100, 20])
+        hsv_red_upper = np.array([0 , 255, 255])
 
         # Convert the rgb image into a hsv image
         hsv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
@@ -86,70 +83,46 @@ class colourIdentifier():
             # Use the max() method to find the largest contour
 
             self.green = max(contours, key = cv2.contourArea)
+            M = cv2.moments(self.green)
 
-            #Check if the area of the shape you want is big enough to be considered
-            # If it is then change the flag for that colour to be True(1)
-            if cv2.contourArea(self.green) > 7000: #<What do you think is a suitable area?>:
-                print ("Green detected and circled in blue")
-                # Alter the value of the flag
+            if M["m00"] != 0:
+                cx, cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
+            else:
+                cx,cy = 0,0
+
+
+            if cv2.contourArea(self.green) > 100: #<What do you think is a suitable area?>:
+                 # Alter the value of the flag
                 self.green_circle_detected = 1
-
-                # draw a circle on the contour you're identifying
-                #minEnclosingCircle can find the centre and radius of the largest contour(result from max())
-                (w, h), radius = cv2.minEnclosingCircle(self.green)
-                center = (int(w),int(h))
+                (cx, cy), radius = cv2.minEnclosingCircle(self.green)
                 radius = int(radius)
-                cv2.circle(mask_color_green,center,radius,(255, 0, 0),2)
-
+                cv2.circle(mask_color_green,(int(cx),int(cy)),radius,(255, 0, 0),2)
+            
+        
         if len(contours2) > 0:
-
+            #self.red_circle_detected = 1
             # Loop over the contours
             # There are a few different methods for identifying which contour is the biggest:
             # Loop through the list and keep track of which contour is biggest or
             # Use the max() method to find the largest contour
-
+            #self.red = max(contours2, key = cv2.contourArea)
             self.red = max(contours2, key = cv2.contourArea)
+            M = cv2.moments(self.red)
 
-            #Check if the area of the shape you want is big enough to be considered
-            # If it is then change the flag for that colour to be True(1)
-            if cv2.contourArea(self.red) > 3000: #<What do you think is a suitable area?>:
-                print ("Red detected and circled in blue")
-                # Alter the value of the flag
-                self.red_circle_detected = 1
+            if M["m00"] != 0:
+                cx, cy = int(M['m10']/M['m00']), int(M['m01']/M['m00'])
+            else:
+                cx,cy = 0,0
 
-                (w, h), radius = cv2.minEnclosingCircle(self.red)
-                center = (int(w),int(h))
+
+            if cv2.contourArea(self.red) > 100: #<What do you think is a suitable area?>:#
+                print("Red")
+                 # Alter the value of the flag
+                (cx, cy), radius = cv2.minEnclosingCircle(self.red)
                 radius = int(radius)
-                cv2.circle(mask_color_red,center,radius,(255, 0, 0),2)
-
-        #Check if a flag has been set = green object detected - follow the colour object
-
-        if self.green_circle_detected == 1 and self.red_circle_detected == 0 and cv2.contourArea(self.green) > 3000 :
-
-            print ("Moving towards green")
-            #desired_velocity = Twist()
-            #desired_velocity.linear.x = 0.5 #linear velocity
-            #rate = rospy.Rate(10)
-            #self.velocity_publisher.publish(desired_velocity)
-            #rate.sleep()
-
-        # Be sure to do this for the other colour as well
-        #Setting the flag to detect red, and stop the turtlebot from moving if red is detected
-        elif self.green_circle_detected == 1 and self.red_circle_detected  == 1:
-                    # stop if red is detected
-                    print ("Red detected, stopping")
-                    #desired_velocity = Twist()
-                    #desired_velocity.linear.x = 0.0 #linear velocity
-                    #rate = rospy.Rate(10)
-                    #self.velocity_publisher.publish(desired_velocity)
-                    #rate.sleep()
-
-
+                cv2.circle(mask_color_red,(int(cx),int(cy)),radius,(255, 0, 0),2)
+            
     #Show the resultant images you have created. You can show all of them or just the end result if you wish to.
-        cv2.imshow('camera_Feed', cv_image)
-        cv2.imshow('mask1', mask_color_green)
-        cv2.imshow('mask2', mask_color_red)
-        cv2.waitKey(3)
 
 # Create a node of your class in the main and ensure it stays up and running
 # handling exceptions and such

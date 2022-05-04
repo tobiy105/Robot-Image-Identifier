@@ -1,4 +1,4 @@
-image: /home/csunix/sc19nmw/catkin_ws/src/group_project/world/map/project_map.pgm
+image: project_map.pgm
 resolution: 0.050000
 origin: [-15.400000, -13.800000, 0.000000]
 negate: 0

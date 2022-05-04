@@ -50,10 +50,10 @@ if __name__ == '__main__':
 
             rospy.sleep(1)
 
-            if key == 2: # switch between 0 and 2 for different rooms
+            if key == 0: # switch between 0 and 2 for different rooms
                 GreenFlag = True
 
-            if key == 3: # switch between 1 and 3 for differnet rooms
+            if key == 1: # switch between 1 and 3 for differnet rooms
                 CluedoFlag = True
             
     except rospy.ROSInterruptException:

@@ -46,21 +46,6 @@ class cameraFeed():
             print("Error Converting cv image: {}".format(e.message))
             
         
-        if (not self.cI.red_circle_detected and not self.cI.green_circle_detected):
-            desired_velocity = Twist()
-            desired_velocity.angular.z = 0.4 # Forward with 0.4 radians/sec.
-            self.pub.publish(desired_velocity)
-            self.rate.sleep()
-            
-          
-
-        if (not self.cI.red_circle_detected | not self.cI.green_circle_detected):
-            desired_velocity = Twist()
-            desired_velocity.angular.z = 0.0 # Forward with 0.0 radians/sec.
-            self.pub.publish(desired_velocity)
-            self.rate.sleep()
-            
-        
         cv2.namedWindow('camera_Feed')
         cv2.imshow('camera_Feed', cv_image)
         cv2.waitKey(3)
