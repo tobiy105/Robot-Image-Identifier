@@ -22,15 +22,13 @@ orb = cv2.ORB(nfeatures=3000)
 images = []
 classNames = []
 myList = os.listdir(path)
-print(myList)
-print('Total Classes Detected',len(myList))
+
 
 for cl in myList:
     imgCur = cv2.imread(join(path,cl),0)
     images.append(imgCur)
     classNames.append(os.path.splitext(cl)[0])
 
-print(classNames)
 
 def findDes(images):
     desList = []
@@ -41,7 +39,7 @@ def findDes(images):
     return desList
 
 desList = findDes(images)
-print(desList)
+
 
 def findID(img, deList):
     kp2 = orb.detect(img,None)
@@ -68,6 +66,11 @@ def findID(img, deList):
             finalVal = matchList.index(max(matchList))
     return finalVal
 
+s = 0
+m = 0
+p = 0
+pl = 0
+f = 0
 
 class characterIdentifier():
 
@@ -105,7 +108,7 @@ class characterIdentifier():
         mask2 = cv2.inRange(hsv_image,hsv_peacock_lower,hsv_peacock_upper)
         mask3 = cv2.inRange(hsv_image,hsv_mustard_lower,hsv_mustard_upper)
         mask4 = cv2.inRange(hsv_image,hsv_plum_lower,hsv_plum_upper)
-
+        global s, m, p, pl, f
         # detecting plum
         img_plum = cv2.bitwise_and(cv_image,cv_image,mask=mask4)
         contours_plum, hierarchy = cv2.findContours(mask4, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -115,6 +118,9 @@ class characterIdentifier():
                 x, y, w, h = cv2.boundingRect(c)
                 cv2.rectangle(img_plum,(x,y),(x+w, y+h),(0,0,255),2)
                 self.plum_flag = 1
+                pl = 1
+                
+                
 
         # detecting peacock
         img_peacock = cv2.bitwise_and(cv_image,cv_image,mask=mask2)
@@ -124,7 +130,8 @@ class characterIdentifier():
             if cv2.contourArea(c) > 2000:
                 x, y, w, h = cv2.boundingRect(c)
                 cv2.rectangle(img_peacock,(x,y),(x+w, y+h),(0,0,255),2)
-                self.peacock_flag = 1
+                self.peacock_flag =1
+                p = 1
 
         # detecting scarlett
         img_scarlett= cv2.bitwise_and(cv_image,cv_image,mask=mask1)
@@ -135,6 +142,7 @@ class characterIdentifier():
                 x, y, w, h = cv2.boundingRect(c)
                 cv2.rectangle(img_scarlett,(x,y),(x+w, y+h),(0,0,255),2)
                 self.scarlett_flag = 1
+                s = 1
 
         # detecting mustard
         img_mustard = cv2.bitwise_and(cv_image,cv_image,mask=mask3)
@@ -145,32 +153,51 @@ class characterIdentifier():
                 x, y, w, h = cv2.boundingRect(c)
                 cv2.rectangle(img_mustard,(x,y),(x+w, y+h),(0,0,255),2)
                 self.mustard_flag = 1
+                m = 1
+               
+        self.scarlett_flag = s
+        self.peacock_flag = p
+        self.mustard_flag = m
+        self.plum_flag = pl
 
         file = open("cluedo_character.txt", "w")
         if (id == 0) and (self.scarlett_flag==1):
             cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
             self.found =  1
-            cv2.imwrite('cluedo_character.png', cv_image)
+            f = 1
             file.write("Miss Scarlett")
+            cv2.imwrite('cluedo_character.png', cv_image)
+            file.close() 
+
         elif (id == 1) and (self.mustard_flag==1):
             cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
             self.found = 2
-            cv2.imwrite('cluedo_character.png', cv_image)
+            f = 2
             file.write("Colonel Mustard")
+            cv2.imwrite('cluedo_character.png', cv_image)
+            file.close() 
+
         elif (id == 2) and (self.peacock_flag==1):
             cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
             self.found = 3
-            cv2.imwrite('cluedo_character.png', cv_image)
+            f = 3
             file.write("Mrs Peacock")
+            cv2.imwrite('cluedo_character.png', cv_image)
+            file.close() 
+
         elif (id == 3) and (self.plum_flag==1):
             cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
             self.found = 4
-            cv2.imwrite('cluedo_character.png', cv_image)
+            f = 4
             file.write("Professor Plum")
-        file.close()      
+            cv2.imwrite('cluedo_character.png', cv_image)
+            file.close() 
+        file.close() 
+
+        self.found = f
         
         cv2.imshow('hsv_image',cv_image)
-        cv2.waitKey(1)
+        cv2.waitKey(3)
 
 
 def main(args):
