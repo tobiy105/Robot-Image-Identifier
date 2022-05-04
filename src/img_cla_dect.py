@@ -111,7 +111,7 @@ class characterIdentifier():
         contours_plum, hierarchy = cv2.findContours(mask4, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         if len(contours_plum) > 0:
             c = max(contours_plum,key=cv2.contourArea)
-            if cv2.contourArea(c) > 5500:
+            if cv2.contourArea(c) > 2000:
                 x, y, w, h = cv2.boundingRect(c)
                 cv2.rectangle(img_plum,(x,y),(x+w, y+h),(0,0,255),2)
                 self.plum_flag = 1
@@ -121,7 +121,7 @@ class characterIdentifier():
         contours_peacock, hierarchy = cv2.findContours(mask2, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         if len(contours_peacock) > 0:
             c = max(contours_peacock,key=cv2.contourArea)
-            if cv2.contourArea(c) > 5500:
+            if cv2.contourArea(c) > 2000:
                 x, y, w, h = cv2.boundingRect(c)
                 cv2.rectangle(img_peacock,(x,y),(x+w, y+h),(0,0,255),2)
                 self.peacock_flag = 1
@@ -131,7 +131,7 @@ class characterIdentifier():
         contours_scarlett, hierarchy = cv2.findContours(mask1, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         if len(contours_scarlett) > 0:
             c = max(contours_scarlett,key=cv2.contourArea)
-            if cv2.contourArea(c) > 5500:
+            if cv2.contourArea(c) > 2000:
                 x, y, w, h = cv2.boundingRect(c)
                 cv2.rectangle(img_scarlett,(x,y),(x+w, y+h),(0,0,255),2)
                 self.scarlett_flag = 1
@@ -141,24 +141,33 @@ class characterIdentifier():
         contours_mustard, hierarchy = cv2.findContours(mask3, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         if len(contours_mustard) > 0:
             c = max(contours_mustard,key=cv2.contourArea)
-            if cv2.contourArea(c) > 5500:
+            if cv2.contourArea(c) > 2000:
                 x, y, w, h = cv2.boundingRect(c)
                 cv2.rectangle(img_mustard,(x,y),(x+w, y+h),(0,0,255),2)
                 self.mustard_flag = 1
 
+        file = open("cluedo_character.txt", "w")
         if (id == 0) and (self.scarlett_flag==1):
             cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
             self.found =  1
+            cv2.imwrite('cluedo_character.png', cv_image)
+            file.write("Miss Scarlett")
         elif (id == 1) and (self.mustard_flag==1):
             cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
             self.found = 2
+            cv2.imwrite('cluedo_character.png', cv_image)
+            file.write("Colonel Mustard")
         elif (id == 2) and (self.peacock_flag==1):
             cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
             self.found = 3
+            cv2.imwrite('cluedo_character.png', cv_image)
+            file.write("Mrs Peacock")
         elif (id == 3) and (self.plum_flag==1):
             cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
             self.found = 4
-        
+            cv2.imwrite('cluedo_character.png', cv_image)
+            file.write("Professor Plum")
+        file.close()      
         
         cv2.imshow('hsv_image',cv_image)
         cv2.waitKey(1)
