@@ -17,7 +17,7 @@ from os.path import join
 # CHANGE HARDCODED PATH
 path = '/home/csunix/sc19ms2/catkin_ws/src/group_project/src/imgs_train'
 # Initiate ORB detector
-orb = cv2.ORB(nfeatures=3000)
+orb = cv2.ORB(nfeatures=2000)
 
 #### Import Images
 images = []
@@ -63,15 +63,17 @@ def findID(img, deList):
 
     
     if len(matchList)!=0:
-        if (max(matchList) > 20) :
+        if (max(matchList) > 30) :
             finalVal = matchList.index(max(matchList))
+            print("-++++_")
     return finalVal
 
-s = 0
-m = 0
-p = 0
-pl = 0
-f = 0
+# s = 0
+# m = 0
+# p = 0
+# pl = 0
+# f = 0
+global cv_image
 
 class characterIdentifier():
 
@@ -79,21 +81,26 @@ class characterIdentifier():
         self.sensitivity = 5
         self.bridge = CvBridge()
         self.sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.callback)
-        self.scarlett_flag = 0
-        self.peacock_flag = 0
-        self.mustard_flag = 0
-        self.plum_flag = 0
+        # self.scarlett_flag = 0
+        # self.peacock_flag = 0
+        # self.mustard_flag = 0
+        # self.plum_flag = 0
         self.found = 0
-        self.cam = 0
 
     def callback(self, data):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data,"bgr8")
+            
         except:
             print("Conversion failed!")
 
-        self.cam = cv_image
-         
+        
+
+    # def colourDetect(self):
+    #     print("checking colour") 
+
+              
+
         # Upper and lower bounds for the four colours to identify
         hsv_scarlett_lower = np.array([0-self.sensitivity,100,100])
         hsv_scarlett_upper = np.array([0+self.sensitivity,255,255])
@@ -113,116 +120,227 @@ class characterIdentifier():
         mask3 = cv2.inRange(hsv_image,hsv_mustard_lower,hsv_mustard_upper)
         mask4 = cv2.inRange(hsv_image,hsv_plum_lower,hsv_plum_upper)
 
-        global s, m, p, pl, f
+        # global s, m, p, pl, f
 
-        # detecting plum
-        img_plum = cv2.bitwise_and(cv_image,cv_image,mask=mask4)
-        contours_plum, hierarchy = cv2.findContours(mask4, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        if len(contours_plum) > 0:
-            c = max(contours_plum,key=cv2.contourArea)
-            if cv2.contourArea(c) > 1000:
-                x, y, w, h = cv2.boundingRect(c)
-                cv2.rectangle(img_plum,(x,y),(x+w, y+h),(0,0,255),2)
-                self.plum_flag = 1
-                pl = 1
+        # # detecting plum
+        # img_plum = cv2.bitwise_and(cv_image,cv_image,mask=mask4)
+        # contours_plum, hierarchy = cv2.findContours(mask4, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        # if len(contours_plum) > 0:
+        #     c = max(contours_plum,key=cv2.contourArea)
+        #     if cv2.contourArea(c) > 500:
+        #         x, y, w, h = cv2.boundingRect(c)
+        #         cv2.rectangle(img_plum,(x,y),(x+w, y+h),(0,0,255),2)
+        #         self.plum_flag = 1
+        #         pl = 1
+        #         print("found plum colour")
                 
                 
+        # # detecting peacock
+        # img_peacock = cv2.bitwise_and(cv_image,cv_image,mask=mask2)
+        # contours_peacock, hierarchy = cv2.findContours(mask2, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        # if len(contours_peacock) > 0:
+        #     c = max(contours_peacock,key=cv2.contourArea)
+        #     if cv2.contourArea(c) > 1000:
+        #         x, y, w, h = cv2.boundingRect(c)
+        #         cv2.rectangle(img_peacock,(x,y),(x+w, y+h),(0,0,255),2)
+        #         self.peacock_flag =1
+        #         p = 1
+        #         print("found peacock colour")
 
-        # detecting peacock
-        img_peacock = cv2.bitwise_and(cv_image,cv_image,mask=mask2)
-        contours_peacock, hierarchy = cv2.findContours(mask2, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        if len(contours_peacock) > 0:
-            c = max(contours_peacock,key=cv2.contourArea)
-            if cv2.contourArea(c) > 1000:
-                x, y, w, h = cv2.boundingRect(c)
-                cv2.rectangle(img_peacock,(x,y),(x+w, y+h),(0,0,255),2)
-                self.peacock_flag =1
-                p = 1
+        # # detecting scarlett
+        # img_scarlett = cv2.bitwise_and(cv_image,cv_image,mask=mask1)
+        # contours_scarlett, hierarchy = cv2.findContours(mask1, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        # if len(contours_scarlett) > 0:
+        #     c = max(contours_scarlett,key=cv2.contourArea)
+        #     if cv2.contourArea(c) > 1000:
+        #         x, y, w, h = cv2.boundingRect(c)
+        #         cv2.rectangle(img_scarlett,(x,y),(x+w, y+h),(0,0,255),2)
+        #         self.scarlett_flag = 1
+        #         s = 1
+        #         print("found scarlett colour")
 
-        # detecting scarlett
-        img_scarlett = cv2.bitwise_and(cv_image,cv_image,mask=mask1)
-        contours_scarlett, hierarchy = cv2.findContours(mask1, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        if len(contours_scarlett) > 0:
-            c = max(contours_scarlett,key=cv2.contourArea)
-            if cv2.contourArea(c) > 1000:
-                x, y, w, h = cv2.boundingRect(c)
-                cv2.rectangle(img_scarlett,(x,y),(x+w, y+h),(0,0,255),2)
-                self.scarlett_flag = 1
-                s = 1
-
-        # detecting mustard
-        img_mustard = cv2.bitwise_and(cv_image,cv_image,mask=mask3)
-        contours_mustard, hierarchy = cv2.findContours(mask3, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        if len(contours_mustard) > 0:
-            c = max(contours_mustard,key=cv2.contourArea)
-            if cv2.contourArea(c) > 1000:
-                x, y, w, h = cv2.boundingRect(c)
-                cv2.rectangle(img_mustard,(x,y),(x+w, y+h),(0,0,255),2)
-                self.mustard_flag = 1
-                m = 1
+        # # detecting mustard
+        # img_mustard = cv2.bitwise_and(cv_image,cv_image,mask=mask3)
+        # contours_mustard, hierarchy = cv2.findContours(mask3, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        # if len(contours_mustard) > 0:
+        #     c = max(contours_mustard,key=cv2.contourArea)
+        #     if cv2.contourArea(c) > 1000:
+        #         x, y, w, h = cv2.boundingRect(c)
+        #         cv2.rectangle(img_mustard,(x,y),(x+w, y+h),(0,0,255),2)
+        #         self.mustard_flag = 1
+        #         m = 1
+        #         print("found mustard colour")
                
-        self.scarlett_flag = s
-        self.peacock_flag = p
-        self.mustard_flag = m
-        self.plum_flag = pl
+        # self.scarlett_flag = s
+        # self.peacock_flag = p
+        # self.mustard_flag = m
+        # self.plum_flag = pl
 
-        file = open("cluedo_character.txt", "w")
-
-        if (id == 0) and (self.scarlett_flag==1):
-            #cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
-            print("Scarlett found!")
-            pub = rospy.Publisher('mobile_base/commands/velocity', Twist)
-            rate = rospy.Rate(10)
-            desired_velocity = Twist()
-            desired_velocity.linear.x = 0
-            desired_velocity.angular.z = 0
-            while True:
-                pub.publish(desired_velocity)
-                file.write("Miss Scarlett")
-                cv2.imwrite('cluedo_character.png', cv_image)
-                file.close()
-                self.found =  1
-                f = 1
-                quit()
+        ########################################################################################################################################
+        # THE WORKING CODE:
+        if( findID(img,desList) != 0 ):
+            # detecting plum
             
-        elif (id == 1) and (self.mustard_flag==1):
-            #cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
-            cv2.imwrite('cluedo_character.png', cv_image)
-            self.found = 2
-            f = 2
-            print("Mustard found!")
-            file.write("Colonel Mustard")
+            img_plum = cv2.bitwise_and(cv_image,cv_image,mask=mask4)
+            contours_plum, hierarchy = cv2.findContours(mask4, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+            if len(contours_plum) > 0:
+                c = max(contours_plum,key=cv2.contourArea)
+                if cv2.contourArea(c) > 500:
+                    x, y, w, h = cv2.boundingRect(c)
+                    cv2.rectangle(img_plum,(x,y),(x+w, y+h),(0,0,255),2)
+                    
+                    print("found plum")
+                 
+                    cv2.imwrite('cluedo_character.png', cv_image)
+                    self.found = 4
+                    
+                    file = open("cluedo_character.txt", "wb+")
+                    file.write("Professor Plum") 
+                    file.close()
+                    sys.exit()
+            # detecting peacock
+            img_peacock = cv2.bitwise_and(cv_image,cv_image,mask=mask2)
+            contours_peacock, hierarchy = cv2.findContours(mask2, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+            if len(contours_peacock) > 0:
+                c = max(contours_peacock,key=cv2.contourArea)
+                if cv2.contourArea(c) > 1000:
+                    x, y, w, h = cv2.boundingRect(c)
+                    cv2.rectangle(img_peacock,(x,y),(x+w, y+h),(0,0,255),2)
+                    
+                    print("found peacock colour")
 
-        elif (id == 2) and (self.peacock_flag==1):
-            #cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
-            cv2.imwrite('cluedo_character.png', cv_image)
-            self.found = 3
-            f = 3
-            print("Peacock found!")
-            file.write("Mrs Peacock")
+                    cv2.imwrite('cluedo_character.png', cv_image)
+                    self.found = 3
+                    
+                    print("Peacock found!")
+                    file = open("cluedo_character.txt", "wb+")
+                    file.write("Mrs Peacock")
+                    file.close()
+                    sys.exit()
 
-        elif (id == 3) and (self.plum_flag==1):
-            #cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
-            cv2.imwrite('cluedo_character.png', cv_image)
-            self.found = 4
-            f = 4
-            print("Plum found!")
-            file.write("Professor Plum") 
 
-        self.found = f
+            # detecting scarlett
+            img_scarlett = cv2.bitwise_and(cv_image,cv_image,mask=mask1)
+            contours_scarlett, hierarchy = cv2.findContours(mask1, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+            if len(contours_scarlett) > 0:
+                c = max(contours_scarlett,key=cv2.contourArea)
+                if cv2.contourArea(c) > 1000:
+                    x, y, w, h = cv2.boundingRect(c)
+                    cv2.rectangle(img_scarlett,(x,y),(x+w, y+h),(0,0,255),2)
+                    
+                    print("found scarlett")
+
+                    cv2.imwrite('cluedo_character.png', cv_image)
+
+                    file = open("cluedo_character.txt", "wb+")
+                    file.write("Miss Scarlett")
+                    file.close()
+                    self.found =  1
+                    
+                    sys.exit()
+
+
+            # detecting mustard
+            img_mustard = cv2.bitwise_and(cv_image,cv_image,mask=mask3)
+            contours_mustard, hierarchy = cv2.findContours(mask3, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+            if len(contours_mustard) > 0:
+                c = max(contours_mustard,key=cv2.contourArea)
+                if cv2.contourArea(c) > 1000:
+                    x, y, w, h = cv2.boundingRect(c)
+                    cv2.rectangle(img_mustard,(x,y),(x+w, y+h),(0,0,255),2)
+                
+                    print("found mustard colour")
+
+                    cv2.imwrite('cluedo_character.png', cv_image)
+                    self.found = 2
+                    print("Mustard found!")
+                    file = open("cluedo_character.txt", "wb+")
+                    file.write("Colonel Mustard")
+                    file.close()
+                    sys.exit()
+        
+        #################################################################################################################################################
+        
+        # if( findID(img,desList) == 3 ) and (self.plum_flag==1):
+        #     print("****************")
+        #     cv2.imwrite('cluedo_character.png', cv_image)
+        #     self.found = 4
+        #     f = 4
+        #     print("Plum found!")
+        #     file.write("Professor Plum") 
+        #     file.close()
+        #     sys.exit()
+
+        # if self.plum_flag == 1:
+        #     pub = rospy.Publisher('mobile_base/commands/velocity', Twist)
+        #     rate = rospy.Rate(10)
+        #     desired_velocity = Twist()
+        #     desired_velocity.angular.z = 0
+        #     desired_velocity.linear.x = 0.2
+        #     pub.publish(desired_velocity)
+        #     if (id == 1) and (self.plum_flag==1):
+        #         desired_velocity.linear.x = 0
+        #         pub.publish(desired_velocity)
+        #         print("yo")
+
+        # file = open("cluedo_character.txt", "wb+")
+
+        
+
+        # if (id == 0) and (self.scarlett_flag==1):
+        #     #cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
+        #     print("Scarlett found!")
+        #     while True:
+        #         file.write("Miss Scarlett")
+        #         cv2.imwrite('cluedo_character.png', cv_image)
+        #         file.close()
+        #         self.found =  1
+        #         f = 1
+        #         sys.exit()
+            
+        # elif (id == 1) and (self.mustard_flag==1):
+        #     #cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
+        #     cv2.imwrite('cluedo_character.png', cv_image)
+        #     self.found = 2
+        #     f = 2
+        #     print("Mustard found!")
+        #     file.write("Colonel Mustard")
+
+        # elif (id == 2) and (self.peacock_flag==1):
+        #     #cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
+        #     cv2.imwrite('cluedo_character.png', cv_image)
+        #     self.found = 3
+        #     f = 3
+        #     print("Peacock found!")
+        #     file.write("Mrs Peacock")
+
+        # elif (id == 3) and (self.plum_flag==1):
+        #     #cv2.putText(cv_image,classNames[id],(50,50),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
+        #     cv2.imwrite('cluedo_character.png', cv_image)
+        #     self.found = 4
+        #     f = 4
+        #     print("Plum found!")
+        #     file.write("Professor Plum") 
+        #     file.close()
+        #     sys.exit()
+
+        # self.found = f
+
+        # # cv2.namedWindow('camera_Feed')
+        # # cv2.imshow('camera_Feed', cv_image)
+        # # cv2.waitKey(0)  
 
 def main(args):
     rospy.init_node('Camera', anonymous=True)
     cI = characterIdentifier()
-    cv2.namedWindow('camera_Feed')
-    cv2.imshow('camera_Feed', cI.cam)
-    cv2.waitKey(1)
     rospy.sleep(1)
     print(cI.found)
     try:
         rospy.spin()
     except KeyboardInterrupts:
-        pass
+        print("Shutting down")
+    cv2.destroyAllWindows()
+
 
 if __name__ == '__main__':
     main(sys.argv)

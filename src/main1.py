@@ -16,6 +16,7 @@ global bump
 bump = False
 
 def spin():
+    print("spinning")
     pub = rospy.Publisher('mobile_base/commands/velocity', Twist)
     #rospy.init_node('Walker', anonymous=True)
     rate = rospy.Rate(10)
@@ -34,52 +35,55 @@ def listen():
     sub = rospy.Subscriber('mobile_base/events/bumper', BumperEvent, processBump)
 
 def rotate(coord,n, thetas):
-    # theta = thetas
-    # temp = theta + (math.pi*2)
+    print("rotating")
+    theta = thetas
+    temp = theta + (math.pi*2)
         
 
 
-    # x = coord[0]
-    # y = coord[1]
-    # coordinate = {'x': x, 'y': y}
-    # quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : np.sin(theta/2.0), 'r4' : np.cos(theta/2.0)} 
-    # navigator.move(coordinate, quaternion)
+    x = coord[0]
+    y = coord[1]
+    coordinate = {'x': x, 'y': y}
+    quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : np.sin(theta/2.0), 'r4' : np.cos(theta/2.0)} 
+    navigator.move(coordinate, quaternion)
 
 
-    # for i in range(n):
-    #     if i < n/2:
-    #         theta = theta + (math.pi*2)/(2*n)
-    #     else:
-    #         temp = temp - (math.pi*2)/(2*n)
-    #         theta = temp
-
-        
-    #     quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : np.sin(theta/2.0), 'r4' : np.cos(theta/2.0)} 
-    #     navigator.move(coordinate, quaternion)
-
-    #     rospy.sleep(0.1)
-    #     test = characterIdentifier()
-    #     rospy.sleep(1)
-    #     #print("test = ", test.scarlett_flag)
-    #     if test.found != 0:
-    #         return 1
-    #     #theta = theta + (math.pi*2)/n
-
-    start = time.time()
-    flag = 0
-    while True:
-        test = characterIdentifier()
-        flag = test.found
-        current = time.time()
-        elapsed = current - start
-        if elapsed > 15:
-            break
-        if flag == 0:
-            spin()
+    for i in range(n):
+        if i < n/2:
+            theta = theta + (math.pi*2)/(2*n)
         else:
-            quit()
+            temp = temp - (math.pi*2)/(2*n)
+            theta = temp
+
+        
+        quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : np.sin(theta/2.0), 'r4' : np.cos(theta/2.0)} 
+        navigator.move(coordinate, quaternion)
+
+        rospy.sleep(0.1)
+        test = characterIdentifier()
+        rospy.sleep(1)
+        #print("test = ", test.scarlett_flag)
+        if test.found != 0:
+            print("found ----------")
+            return 1
+        #theta = theta + (math.pi*2)/n
+
+    # start = time.time()
+    # flag = 0
+    # while True:
+    #     test = characterIdentifier()
+    #     flag = test.found
+    #     current = time.time()
+    #     elapsed = current - start
+    #     if elapsed > 15:
+    #         break
+    #     if flag == 0:
+    #         spin()
+    #     else:
+    #         quit()
 
 def search(coord, thetas):
+    print("searching")
     theta = thetas
     x = coord[0]
     y = coord[1]
@@ -89,7 +93,7 @@ def search(coord, thetas):
     navigator.move(coordinate, quaternion)
 
 
-    pub = rospy.Publisher('mobile_base/commands/velocity', Twist)
+    pub = rospy.Publisher('mobile_base/commands/velocity', Twist, queue_size = 10)
     #rospy.init_node('Walker', anonymous=True)
     rate = rospy.Rate(10)
     desired_velocity = Twist()
