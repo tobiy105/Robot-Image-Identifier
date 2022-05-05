@@ -16,6 +16,7 @@ global bump
 bump = False
 
 def spin():
+    print("spinning")
     pub = rospy.Publisher('mobile_base/commands/velocity', Twist)
     #rospy.init_node('Walker', anonymous=True)
     rate = rospy.Rate(10)
@@ -34,6 +35,7 @@ def listen():
     sub = rospy.Subscriber('mobile_base/events/bumper', BumperEvent, processBump)
 
 def rotate(coord,n, thetas):
+    print("rotating")
     theta = thetas
     temp = theta + (math.pi*2)
         
@@ -60,12 +62,28 @@ def rotate(coord,n, thetas):
         rospy.sleep(0.1)
         test = characterIdentifier()
         rospy.sleep(1)
-        print("test = ", test.scarlett_flag)
+        #print("test = ", test.scarlett_flag)
         if test.found != 0:
+            print("found ----------")
             return 1
         #theta = theta + (math.pi*2)/n
 
+    # start = time.time()
+    # flag = 0
+    # while True:
+    #     test = characterIdentifier()
+    #     flag = test.found
+    #     current = time.time()
+    #     elapsed = current - start
+    #     if elapsed > 15:
+    #         break
+    #     if flag == 0:
+    #         spin()
+    #     else:
+    #         quit()
+
 def search(coord, thetas):
+    print("searching")
     theta = thetas
     x = coord[0]
     y = coord[1]
@@ -75,7 +93,7 @@ def search(coord, thetas):
     navigator.move(coordinate, quaternion)
 
 
-    pub = rospy.Publisher('mobile_base/commands/velocity', Twist)
+    pub = rospy.Publisher('mobile_base/commands/velocity', Twist, queue_size = 10)
     #rospy.init_node('Walker', anonymous=True)
     rate = rospy.Rate(10)
     desired_velocity = Twist()
@@ -108,8 +126,9 @@ if __name__ == '__main__':
     try:
         rospy.init_node('navigation', anonymous = True)
         navigator = Move()
-         
-        CONST_POINTS_PATH = '..//world//input_points.yaml'
+        
+        # CHANGE HARDCODED PATH
+        CONST_POINTS_PATH = '/home/csunix/sc19ms2/catkin_ws/src/group_project/world/input_points.yaml'
 
         from yaml.loader import SafeLoader #import safeloader from pyyaml
 
@@ -148,8 +167,8 @@ if __name__ == '__main__':
         if(GreenFlag):
             x = room1c[0]
             y = room1c[1]
-            print(x)
-            print(y)
+            #print(x)
+            #print(y)
             theta = 0
             coordinate = {'x': x, 'y': y}
             quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : np.sin(theta/2.0), 'r4' : np.cos(theta/2.0)}
@@ -166,8 +185,8 @@ if __name__ == '__main__':
     
 
         x = 0.0       
-        for i in range(9):
-            if i == 8:
+        for i in range(6):
+            if i == 5:
                 break
             temp = x
             x = search(centerCoord, x)
@@ -175,7 +194,7 @@ if __name__ == '__main__':
             coord = [navigator.posx, navigator.posy]
             t = rotate(coord, 4, temp)
             if t == 1:
-                print("HERE BITCH")
+                print("Found!")
                 break
             navigator.move(coordinate, quaternion)
 
