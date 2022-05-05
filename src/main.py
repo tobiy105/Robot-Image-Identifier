@@ -16,7 +16,7 @@ if __name__ == '__main__':
          
 
 
-        CONST_POINTS_PATH = '..//world//input_points.yaml'
+        CONST_POINTS_PATH = '.. /world/input_points.yaml'
 
         from yaml.loader import SafeLoader #import safeloader from pyyaml
 
