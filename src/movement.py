@@ -6,6 +6,7 @@ import actionlib
 from actionlib_msgs.msg import *
 from geometry_msgs.msg import Pose, Point, Quaternion
 from nav_msgs.msg import Odometry
+import os
 
 
 class Move():
@@ -19,7 +20,7 @@ class Move():
 
 
         self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
-        rospy.loginfo("waiting for action server")
+        rospy.loginfo(os.getcwd())
         
         self.move_base.wait_for_server()
 
