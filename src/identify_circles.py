@@ -14,9 +14,8 @@ class colourIdentifier():
 
     def __init__(self):
         # Initialise a publisher to publish messages to the robot base
-        # We covered which topic receives messages that move the robot in the 2nd Lab Session
 
-        # Initialise any flags that signal that an coloured circle has been detected (default to false)
+        # Initialise any flags that signal that an coloured circle has been detected (default to 0)
         self.red_circle_detected = 0
         self.green_circle_detected = 0
 
@@ -25,8 +24,7 @@ class colourIdentifier():
 
         # Initialise some standard movement messages such as a simple move forward and a message with all zeroes (stop)
 
-        # Remember to initialise a CvBridge() and set up a subscriber to the image topic you wish to use
-        # We covered which topic to subscribe to should you wish to receive image data
+        # Initialise a CvBridge() and set up a subscriber to the image topic you wish to use
         self.cv_bridge = CvBridge()
         self.image_publisher = rospy.Publisher('camera/rgb/image_raw',Image)
         self.image_subscriber = rospy.Subscriber('camera/rgb/image_raw', Image, self.callback)
@@ -34,15 +32,13 @@ class colourIdentifier():
 
     def callback(self, data):
         # Convert the received image into a opencv image
-        # But remember that you should always wrap a call to this conversion method in an exception handler
         try:
          cv_image = self.cv_bridge.imgmsg_to_cv2(data, "bgr8")
          image_copy = cv_image.copy()
         except CvBridgeError as e:
             print(e)
 
-        # Set the upper and lower bounds for the two colours you wish to identify
-        #hue value = 0 to 179
+        # Set the upper and lower bounds for green and red
 
         #green
         hsv_green_lower = np.array([64, 100, 20])
@@ -60,12 +56,10 @@ class colourIdentifier():
         mask_red  = cv2.inRange(hsv_image, hsv_red_lower, hsv_red_upper)
 
         # Apply the mask to the original image using the cv2.bitwise_and() method
-        # As mentioned on the worksheet the best way to do this is to bitwise and an image with itself and pass the mask to the mask parameter
         mask_color_green = cv2.bitwise_and(image_copy, image_copy, mask = mask_green)
         mask_color_red = cv2.bitwise_and(image_copy, image_copy, mask = mask_red)
 
         # Find the contours that appear within the certain colour mask using the cv2.findContours() method
-        # For <mode> use cv2.RETR_LIST for <method> use cv2.CHAIN_APPROX_SIMPLE
         mask_green_to_gray = cv2.cvtColor(mask_color_green, cv2.COLOR_BGR2GRAY)
         ret,thresh = cv2.threshold(mask_green_to_gray, 50, 255, 0)
         contours, heirarchy = cv2.findContours (thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -78,8 +72,6 @@ class colourIdentifier():
         if len(contours) > 0:
 
             # Loop over the contours
-            # There are a few different methods for identifying which contour is the biggest:
-            # Loop through the list and keep track of which contour is biggest or
             # Use the max() method to find the largest contour
 
             self.green = max(contours, key = cv2.contourArea)
@@ -91,7 +83,8 @@ class colourIdentifier():
                 cx,cy = 0,0
 
 
-            if cv2.contourArea(self.green) > 100: #<What do you think is a suitable area?>:
+            if cv2.contourArea(self.green) > 100:
+                
                  # Alter the value of the flag
                 self.green_circle_detected = 1
                 (cx, cy), radius = cv2.minEnclosingCircle(self.green)
@@ -100,12 +93,9 @@ class colourIdentifier():
             
         
         if len(contours2) > 0:
-            #self.red_circle_detected = 1
+
             # Loop over the contours
-            # There are a few different methods for identifying which contour is the biggest:
-            # Loop through the list and keep track of which contour is biggest or
             # Use the max() method to find the largest contour
-            #self.red = max(contours2, key = cv2.contourArea)
             self.red = max(contours2, key = cv2.contourArea)
             M = cv2.moments(self.red)
 
@@ -115,27 +105,22 @@ class colourIdentifier():
                 cx,cy = 0,0
 
 
-            if cv2.contourArea(self.red) > 100: #<What do you think is a suitable area?>:#
+            if cv2.contourArea(self.red) > 100: 
                 print("Red")
-                 # Alter the value of the flag
+    
                 (cx, cy), radius = cv2.minEnclosingCircle(self.red)
                 radius = int(radius)
                 cv2.circle(mask_color_red,(int(cx),int(cy)),radius,(255, 0, 0),2)
-            
-    #Show the resultant images you have created. You can show all of them or just the end result if you wish to.
 
-# Create a node of your class in the main and ensure it stays up and running
-# handling exceptions and such
+
+# Create a node of the class in the main and ensure it stays up and running while handling exceptions and such
 def main(args):
-    # Instantiate your class
-    # And rospy.init the entire node
+    # Instantiate the class and rospy.init the entire node
     cI = colourIdentifier()
     rospy.init_node('image_converter', anonymous=True)
     rate = rospy.Rate(10)
 
     # Ensure that the node continues running with rospy.spin()
-    # You may need to wrap it in an exception handler in case of KeyboardInterrupts
-    # Remember to destroy all image windows before closing node
     try:
         rospy.spin()
     except KeyboardInterrupt:
