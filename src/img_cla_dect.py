@@ -15,7 +15,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from os.path import join
 
 # CHANGE HARDCODED PATH
-path = '../src/imgs_train'
+path = os.path.expanduser('~/catkin_ws/src/group_project/src/imgs_train')
 # Initiate ORB detector
 orb = cv2.ORB(nfeatures=2000)
 
@@ -88,6 +88,10 @@ class characterIdentifier():
         self.found = 0
 
     def callback(self, data):
+        output_path = os.path.expanduser('~/catkin_ws/src/group_project/output')
+        image_path = os.path.join(output_path, 'cluedo_character.png')
+        text_path = os.path.join(output_path, 'cluedo_character.txt')
+
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data,"bgr8")
             
@@ -130,10 +134,10 @@ class characterIdentifier():
                     
                     print("found plum")
                  
-                    cv2.imwrite('../output/cluedo_character.png', cv_image)
+                    cv2.imwrite(image_path, cv_image)
                     self.found = 4
                     
-                    file = open("../output/cluedo_character.txt", "wb+")
+                    file = open(text_path, "wb+")
                     file.write("Professor Plum") 
                     file.close()
                     sys.exit()
@@ -148,11 +152,11 @@ class characterIdentifier():
                     
                     print("found peacock colour")
 
-                    cv2.imwrite('../output/cluedo_character.png', cv_image)
+                    cv2.imwrite(image_path, cv_image)
                     self.found = 3
                     
                     print("Peacock found!")
-                    file = open("../output/cluedo_character.txt", "wb+")
+                    file = open(text_path, "wb+")
                     file.write("Mrs Peacock")
                     file.close()
                     sys.exit()
@@ -169,9 +173,9 @@ class characterIdentifier():
                     
                     print("found scarlett")
 
-                    cv2.imwrite('../output/cluedo_character.png', cv_image)
+                    cv2.imwrite(image_path, cv_image)
 
-                    file = open("../output/cluedo_character.txt", "wb+")
+                    file = open(text_path, "wb+")
                     file.write("Miss Scarlett")
                     file.close()
                     self.found =  1
@@ -190,10 +194,10 @@ class characterIdentifier():
                 
                     print("found mustard colour")
 
-                    cv2.imwrite('../output/cluedo_character.png', cv_image)
+                    cv2.imwrite(image_path, cv_image)
                     self.found = 2
                     print("Mustard found!")
-                    file = open("../output/cluedo_character.txt", "wb+")
+                    file = open(text_path, "wb+")
                     file.write("Colonel Mustard")
                     file.close()
                     sys.exit()
