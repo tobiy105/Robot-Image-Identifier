@@ -13,6 +13,9 @@ from geometry_msgs.msg import Twist, Vector3
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
+img_path = os.path.expanduser('~/catkin_ws/src/group_project/output/cluedo_character.png')
+text_path = os.path.expanduser('~/catkin_ws/src/group_project/output/cluedo_character.txt')
+
 class characterIdentifier():
 
     def __init__(self):
@@ -90,21 +93,21 @@ class characterIdentifier():
         cv2.imshow('camera_Feed', cv_image)
         cv2.waitKey(3)
 
-        file = open("cluedo_character.txt", "w")
+        file = open(text_path, "w")
         if (self.scarlett_flag == 1):
-            cv2.imwrite('cluedo_character.png', cv_image)
+            cv2.imwrite(img_path, cv_image)
             file.write("Miss Scarlett")
             print("Saved files to current working directory!")
         elif (self.peacock_flag == 1):
-            cv2.imwrite('cluedo_character.png', cv_image)
+            cv2.imwrite(img_path, cv_image)
             file.write("Mrs Peacock")
             print("Saved files to current working directory!")
         elif (self.mustard_flag == 1):
-            cv2.imwrite('cluedo_character.png', cv_image)
+            cv2.imwrite(img_path, cv_image)
             file.write("Colonel Mustard")
             print("Saved files to current working directory!")
         elif (self.plum_flag == 1):
-            cv2.imwrite('cluedo_character.png', cv_image)
+            cv2.imwrite(img_path, cv_image)
             file.write("Professor Plum")
             print("Saved files to current working directory!")
         file.close()

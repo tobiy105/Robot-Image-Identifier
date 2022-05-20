@@ -131,7 +131,7 @@ if __name__ == '__main__':
         navigator = Move()
         
         # CHANGE HARDCODED PATH
-        CONST_POINTS_PATH = '../world/input_points.yaml'
+        CONST_POINTS_PATH = os.path.expanduser('~/catkin_ws/src/group_project/world/input_points.yaml')
 
         from yaml.loader import SafeLoader #import safeloader from pyyaml
 
